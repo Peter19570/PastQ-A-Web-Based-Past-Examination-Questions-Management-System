@@ -49,12 +49,17 @@ class PastQuestionListView(generics.ListCreateAPIView):
         return PastQuestionSerializer
 
     def get_queryset(self):
-        """Only show approved past questions to non-admins"""
         queryset = PastQuestion.objects.select_related("course", "uploaded_by")
+        user = getattr(self.request, "user", None)
 
-        # Show all to admins, only approved to others
-        user = self.request.user
-        if user.is_authenticated and (user.is_admin or user.is_moderator):
+        if (
+            user
+            and user.is_authenticated
+            and (
+                IsAdminUser().has_permission(self.request, self)
+                or IsModerator().has_permission(self.request, self)
+            )
+        ):
             return queryset.all()
 
         return queryset.filter(status="approved")
