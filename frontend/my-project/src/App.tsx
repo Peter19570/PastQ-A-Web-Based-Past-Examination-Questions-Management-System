@@ -10,6 +10,7 @@ import { Login } from "./pages/public/Login";
 import { Register } from "./pages/public/Register";
 import { Courses } from "./pages/public/Courses";
 import { PastQuestions } from "./pages/public/PastQuestions";
+import { PastQuestionDetail } from './pages/public/PastQuestionDetail'; // Adjust path as needed
 
 import { Dashboard } from "./pages/protected/Dashboard";
 import { Upload } from "./pages/protected/Upload";
@@ -31,6 +32,7 @@ function App() {
                 <Route path="/register" element={<Register />} />
                 <Route path="/courses" element={<Courses />} />
                 <Route path="/past-questions" element={<PastQuestions />} />
+                <Route path="/past-questions/:id" element={<PastQuestionDetail />} />
 
                 <Route
                   path="/dashboard"

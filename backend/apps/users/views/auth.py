@@ -57,7 +57,7 @@ class LogoutView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        refresh = request.get("refresh")
+        refresh = request.data.get("refresh")
         if not refresh:
             raise ValueError("refresh token is invalid")
         token = RefreshToken(refresh)

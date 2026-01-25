@@ -12,10 +12,6 @@ export interface LoginData {
   password: string;
 }
 
-interface LoginResponse {
-  access: string;
-  refresh: string;
-}
 
 interface UserProfile {
   id: number;
@@ -34,20 +30,13 @@ export const authService = {
     return response.data;
   },
 
-// In auth.ts
-login: async (credentials: LoginData) => {
-  const response = await api.post('/users/login/', credentials);
-  return response.data; // Ensure '.data' is what you are returning!
-},
+  login: async (credentials: LoginData) => {
+    const response = await api.post('/users/login/', credentials);
+    return response.data; 
+  },
 
-  logout: async () => {
-    try {
-      await api.post('/users/logout/');
-    } finally {
-      localStorage.removeItem('accessToken');
-      localStorage.removeItem('refreshToken');
-      localStorage.removeItem('user');
-    }
+  logout: async (refreshToken: string) => {
+    return api.post('/users/logout/', { refresh: refreshToken });
   },
 
   getProfile: async (): Promise<UserProfile> => {

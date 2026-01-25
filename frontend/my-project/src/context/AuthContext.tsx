@@ -62,8 +62,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginData) => {
     const response = await authService.login(data);
-
-    // Drill into the 'tokens' object from your console log
     const access = response.tokens?.access;
     const refresh = response.tokens?.refresh;
     const userData = response.user;
@@ -87,19 +85,48 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
-  // Updated to accept RegisterData object
   const register = async (data: RegisterData) => {
-    await authService.register(data);
-    // Automatically log in using the same credentials after successful registration
-    await login({
-      index_number: data.index_number,
-      password: data.password,
-    });
+    const response = await authService.register(data);
+
+    const access = response.tokens?.access;
+    const refresh = response.tokens?.refresh;
+    const userData = response.user;
+
+    if (access && refresh) {
+      // 1. Save the tokens immediately
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+
+      // 2. Set the user state so the UI updates
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // 3. Redirect to Dashboard
+      window.location.href = "/dashboard";
+    } else {
+      // Fallback: If for some reason tokens aren't returned, try manual login
+      await login({
+        index_number: data.index_number,
+        password: data.password,
+      });
+    }
   };
 
   const logout = async () => {
-    await authService.logout();
-    setUser(null);
+    try {
+      const refreshToken = localStorage.getItem("refreshToken");
+      // Attempt to notify backend, but don't let it block the UI cleanup
+      if (refreshToken) {
+        await authService.logout(refreshToken);
+      }
+    } catch (error) {
+      console.error("Backend logout failed, but clearing local session anyway");
+    } finally {
+      // ALWAYS clear local state regardless of server response
+      localStorage.clear();
+      setUser(null);
+      window.location.href = "/login"; // Force redirect
+    }
   };
 
   const refreshUser = async () => {

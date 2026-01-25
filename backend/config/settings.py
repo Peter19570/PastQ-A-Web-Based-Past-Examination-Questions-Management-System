@@ -46,6 +46,7 @@ INSTALLED_APPS = [
     "apps.analytics.apps.AnalyticsConfig",
     "drf_spectacular",
     "corsheaders",
+    "rest_framework_simplejwt.token_blacklist",
 ]
 
 AUTH_USER_MODEL = "users.User"
