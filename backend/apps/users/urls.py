@@ -17,11 +17,11 @@ urlpatterns = [
     # Profile endpoints
     path("profile/", profile.UserProfileView.as_view(), name="profile"),
     path(
-        "profile/change-password",
+        "profile/change-password/",
         profile.ChangePasswordView.as_view(),
         name="change-password",
     ),
     # Admin endpoints
-    path("users/", admin.UserListView.as_view(), name="user-list"),
-    path("users/<int:pk>/", admin.UserDetailView.as_view(), name="user-detail"),
+    path("admin/", admin.UserListView.as_view(), name="user-list"),
+    path("admin/<int:pk>/", admin.UserDetailView.as_view(), name="user-detail"),
 ]
