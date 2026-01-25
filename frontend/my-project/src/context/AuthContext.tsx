@@ -60,15 +60,31 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     initAuth();
   }, []);
 
-  // Updated to accept LoginData object (index_number, password)
   const login = async (data: LoginData) => {
     const response = await authService.login(data);
-    localStorage.setItem("accessToken", response.access);
-    localStorage.setItem("refreshToken", response.refresh);
 
-    const profile = await authService.getProfile();
-    setUser(profile);
-    localStorage.setItem("user", JSON.stringify(profile));
+    // Drill into the 'tokens' object from your console log
+    const access = response.tokens?.access;
+    const refresh = response.tokens?.refresh;
+    const userData = response.user;
+
+    if (access && refresh) {
+      // 1. Save the tokens
+      localStorage.setItem("accessToken", access);
+      localStorage.setItem("refreshToken", refresh);
+
+      // 2. Save the user data directly from the login response
+      setUser(userData);
+      localStorage.setItem("user", JSON.stringify(userData));
+
+      // 3. Redirect to Dashboard
+      window.location.href = "/dashboard";
+    } else {
+      console.error(
+        "Token naming mismatch! Expected 'tokens.access' and 'tokens.refresh'",
+        response,
+      );
+    }
   };
 
   // Updated to accept RegisterData object

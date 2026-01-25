@@ -34,10 +34,11 @@ export const authService = {
     return response.data;
   },
 
-  login: async (data: LoginData): Promise<LoginResponse> => {
-    const response = await api.post('/users/login/', data);
-    return response.data;
-  },
+// In auth.ts
+login: async (credentials: LoginData) => {
+  const response = await api.post('/users/login/', credentials);
+  return response.data; // Ensure '.data' is what you are returning!
+},
 
   logout: async () => {
     try {

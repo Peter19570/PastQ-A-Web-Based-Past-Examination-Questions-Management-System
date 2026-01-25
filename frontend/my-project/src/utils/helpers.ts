@@ -1,9 +1,5 @@
 import { format, formatDistanceToNow, isValid } from 'date-fns';
 
-/**
- * Robust date formatter to replace 'formatDate'
- * Handles nulls and invalid strings from the backend
- */
 export const formatDateTime = (date: string | Date | null | undefined): string => {
   if (!date) return 'N/A';
   const d = new Date(date);
