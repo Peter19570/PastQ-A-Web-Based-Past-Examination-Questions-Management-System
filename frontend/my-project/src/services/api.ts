@@ -12,7 +12,6 @@ const api: AxiosInstance = axios.create({
 api.interceptors.request.use(
   (config: InternalAxiosRequestConfig) => {
     const token = localStorage.getItem('accessToken');
-    // CRITICAL: Ensure 'Bearer ' has a space after it
     if (token && config.headers) {
       config.headers.Authorization = `Bearer ${token}`; 
     }
@@ -28,8 +27,7 @@ api.interceptors.response.use(
 
     if (error.response?.status === 401 && !originalRequest._retry) {
       const refreshToken = localStorage.getItem('refreshToken');
-      
-      // Don't retry if no token exists or if we are already at the login endpoint
+
       if (!refreshToken || originalRequest.url?.includes('/users/login/')) {
         return Promise.reject(error);
       }
@@ -37,7 +35,6 @@ api.interceptors.response.use(
       originalRequest._retry = true;
 
       try {
-        // VERIFY: This must match your Django path('api/token/refresh/', ...) exactly
         const response = await axios.post(`${API_BASE_URL}/api/token/refresh/`, {
           refresh: refreshToken,
         });
@@ -45,11 +42,9 @@ api.interceptors.response.use(
         const { access } = response.data;
         localStorage.setItem('accessToken', access);
 
-        // Update the failed request with the fresh token
         originalRequest.headers.Authorization = `Bearer ${access}`;
         return api(originalRequest);
       } catch (refreshError) {
-        // Clear storage to stop the loop
         localStorage.clear();
         if (window.location.pathname !== '/login') {
           window.location.href = '/login';

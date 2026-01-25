@@ -62,70 +62,66 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
   const login = async (data: LoginData) => {
     const response = await authService.login(data);
+
+    // 1. Extract everything from the single login response
     const access = response.tokens?.access;
     const refresh = response.tokens?.refresh;
     const userData = response.user;
 
-    if (access && refresh) {
-      // 1. Save the tokens
+    if (access && refresh && userData) {
+      // 2. Save tokens and user data simultaneously
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
-
-      // 2. Save the user data directly from the login response
-      setUser(userData);
       localStorage.setItem("user", JSON.stringify(userData));
 
-      // 3. Redirect to Dashboard
+      // 3. Update state once
+      setUser(userData);
+
+      // 4. Redirect immediately
       window.location.href = "/dashboard";
-    } else {
-      console.error(
-        "Token naming mismatch! Expected 'tokens.access' and 'tokens.refresh'",
-        response,
-      );
     }
   };
 
   const register = async (data: RegisterData) => {
-    const response = await authService.register(data);
+    try {
+      const response = await authService.register(data);
 
-    const access = response.tokens?.access;
-    const refresh = response.tokens?.refresh;
-    const userData = response.user;
+      // 1. Access the nested tokens and user data directly
+      const access = response.tokens?.access;
+      const refresh = response.tokens?.refresh;
+      const userData = response.user;
 
-    if (access && refresh) {
-      // 1. Save the tokens immediately
-      localStorage.setItem("accessToken", access);
-      localStorage.setItem("refreshToken", refresh);
+      if (access && refresh && userData) {
+        // 2. Save everything to storage immediately
+        localStorage.setItem("accessToken", access);
+        localStorage.setItem("refreshToken", refresh);
+        localStorage.setItem("user", JSON.stringify(userData));
 
-      // 2. Set the user state so the UI updates
-      setUser(userData);
-      localStorage.setItem("user", JSON.stringify(userData));
+        // 3. Update the user state ONCE to prevent the white flash
+        setUser(userData);
 
-      // 3. Redirect to Dashboard
-      window.location.href = "/dashboard";
-    } else {
-      // Fallback: If for some reason tokens aren't returned, try manual login
-      await login({
-        index_number: data.index_number,
-        password: data.password,
-      });
+        // 4. Redirect to Dashboard
+        window.location.href = "/dashboard";
+      }
+    } catch (error) {
+      console.error("Registration failed:", error);
     }
   };
 
   const logout = async () => {
     try {
       const refreshToken = localStorage.getItem("refreshToken");
-      // Attempt to notify backend, but don't let it block the UI cleanup
       if (refreshToken) {
         await authService.logout(refreshToken);
       }
     } catch (error) {
       console.error("Backend logout failed, but clearing local session anyway");
     } finally {
-      // ALWAYS clear local state regardless of server response
-      localStorage.clear();
+      localStorage.removeItem("accessToken");
+      localStorage.removeItem("refreshToken");
+      localStorage.removeItem("user");
       setUser(null);
-      window.location.href = "/login"; // Force redirect
+      window.location.href = "/login";
     }
   };
 

@@ -26,7 +26,7 @@ SECRET_KEY = "django-insecure-+&*)e1h+q!^a&m5@o#nvaa#ap@iu!m^6loi+ab_bm!w7#c_6k8
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "192.168.1.5", "172.20.10.5"]
 
 
 # Application definition
@@ -114,12 +114,13 @@ SIMPLE_JWT = {
     "SLIDING_TOKEN_REFRESH_LIFETIME": timedelta(days=1),
 }
 
-# CORS (for React frontend)
 CORS_ALLOW_ALL_ORIGINS = True  # Change in production
 
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://192.168.1.5:5173",
+    "http://172.20.10.5:5173",
 ]
 
 # File upload settings
