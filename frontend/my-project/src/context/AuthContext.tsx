@@ -12,10 +12,12 @@ interface User {
   email: string;
   first_name: string;
   last_name: string;
-  is_staff: boolean;
   reputation: number;
   total_uploads: number;
   total_downloads: number;
+  is_staff: boolean;
+  is_admin: boolean;
+  is_moderator: boolean;
 }
 
 interface AuthContextType {
@@ -63,22 +65,29 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const login = async (data: LoginData) => {
     const response = await authService.login(data);
 
-    // 1. Extract everything from the single login response
     const access = response.tokens?.access;
     const refresh = response.tokens?.refresh;
     const userData = response.user;
 
     if (access && refresh && userData) {
-      // 2. Save tokens and user data simultaneously
       localStorage.setItem("accessToken", access);
       localStorage.setItem("refreshToken", refresh);
-      localStorage.setItem("user", JSON.stringify(userData));
 
-      // 3. Update state once
-      setUser(userData);
+      const userWithRoles = {
+        ...userData,
+        isAdmin: userData.is_admin || userData.is_superuser,
+        isModerator: userData.is_moderator || userData.is_staff,
+      };
 
-      // 4. Redirect immediately
-      window.location.href = "/dashboard";
+      localStorage.setItem("user", JSON.stringify(userWithRoles));
+      setUser(userWithRoles);
+
+      // 2. Reroute based on the flags in the data
+      if (userWithRoles.isAdmin || userWithRoles.isModerator) {
+        window.location.href = "/admin";
+      } else {
+        window.location.href = "/dashboard";
+      }
     }
   };
 

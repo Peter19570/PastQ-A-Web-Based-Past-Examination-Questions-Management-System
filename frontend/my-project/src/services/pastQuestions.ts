@@ -2,7 +2,8 @@ import api from './api';
 
 export interface PastQuestion {
   id: number;
-  course: {
+  course: string | {
+    id: number;
     code: string;
     title: string;
     department: string;
@@ -19,6 +20,8 @@ export interface PastQuestion {
   file_size: number;
   uploader: number;
   uploader_name?: string;
+  has_solutions: boolean;
+  is_scanned: boolean;
   status: 'pending' | 'approved' | 'rejected';
   download_count: number;
   created_at: string;
@@ -26,22 +29,57 @@ export interface PastQuestion {
 }
 
 export interface PastQuestionUpload {
-  course: string;
-  title: string;
+  course_id: number;
   year: number;
-  semester: 'First' | 'Second' | 'Summer';
+  semester: string;
+  exam_type: string;
+  title: string;
   file: File;
+  lecturer?: string;
+  has_solutions: boolean;
+  is_scanned: boolean;
 }
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
 
 export const pastQuestionsService = {
-  getAll: async (params?: {
-    search?: string;
-    course?: string;
-    year?: number;
-    semester?: string;
-    page?: number;
-  }) => {
+  getAll: async (params?: any) => {
     const response = await api.get('/past-questions/', { params });
+    return response.data;
+  },
+
+  getDownloadUrl: (id: number) => {
+    // This returns the exact endpoint shown in your screenshot
+    return `${API_BASE_URL}/past-questions/${id}/download/`;
+  },
+  
+  downloadFile: async (id: number) => {
+    // We use responseType: 'blob' to get the actual file data
+    const response = await api.get(`/past-questions/${id}/download/`, {
+      responseType: 'blob',
+    });
+    return response.data;
+  },
+  
+  upload: async (data: PastQuestionUpload) => {
+    const formData = new FormData();
+    
+    // Append every field exactly as Django expects them
+    formData.append('course_id', data.course_id.toString());
+    formData.append('year', data.year.toString());
+    formData.append('semester', data.semester);
+    formData.append('exam_type', data.exam_type);
+    formData.append('title', data.title);
+    formData.append('file', data.file);
+    
+    if (data.lecturer) formData.append('lecturer', data.lecturer);
+
+    // Convert booleans to strings so Django can read them from FormData
+    formData.append('has_solutions', String(data.has_solutions));
+    formData.append('is_scanned', String(data.is_scanned));
+
+    const response = await api.post('/past-questions/', formData, {
+      headers: { 'Content-Type': 'multipart/form-data' },
+    });
     return response.data;
   },
 
@@ -69,22 +107,6 @@ export const pastQuestionsService = {
 
   getPending: async () => {
     const response = await api.get('/past-questions/pending/');
-    return response.data;
-  },
-
-  upload: async (data: PastQuestionUpload) => {
-    const formData = new FormData();
-    formData.append('course', data.course);
-    formData.append('title', data.title);
-    formData.append('year', data.year.toString());
-    formData.append('semester', data.semester);
-    formData.append('file', data.file);
-
-    const response = await api.post('/past-questions/', formData, {
-      headers: {
-        'Content-Type': 'multipart/form-data',
-      },
-    });
     return response.data;
   },
 

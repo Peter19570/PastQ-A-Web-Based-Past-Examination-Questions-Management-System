@@ -27,8 +27,8 @@ export const coursesService = {
     return response.data;
   },
 
-  getByCode: async (code: string): Promise<Course> => {
-    const response = await api.get(`/courses/${code}/`);
+  getByCode: async (code: string) => {
+    const response = await api.get(`/courses/${code}/`); 
     return response.data;
   },
 

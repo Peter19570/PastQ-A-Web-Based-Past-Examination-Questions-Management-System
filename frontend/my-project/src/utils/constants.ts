@@ -1,7 +1,17 @@
 export const SEMESTERS = [
-  { value: 'First', label: 'First Semester' },
-  { value: 'Second', label: 'Second Semester' },
-  { value: 'Summer', label: 'Summer' },
+{ value: 'first', label: 'First Semester' },
+  { value: 'second', label: 'Second Semester' },
+  { value: 'summer', label: 'Summer Semester' },
+  { value: 'unknown', label: 'Unknown' },
+];
+
+export const EXAM_TYPES = [
+  { value: 'midterm', label: 'Midterm Exam' },
+  { value: 'final', label: 'Final Exam' },
+  { value: 'quiz', label: 'Quiz' },
+  { value: 'assignment', label: 'Assignment' },
+  { value: 'test', label: 'Test' },
+  { value: 'other', label: 'Other' },
 ];
 
 export const CURRENT_YEAR = new Date().getFullYear();

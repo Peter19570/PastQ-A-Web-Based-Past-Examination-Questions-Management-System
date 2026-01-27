@@ -79,6 +79,9 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "date_joined",
             "last_login",
             "phone_number",
+            "is_admin",
+            "is_moderator",
+            "is_staff",
         ]
         read_only_fields = [
             "date_joined",
@@ -88,6 +91,8 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "successful_uploads",
             "is_verified_uploader",
             "date_joined",
+            "is_admin",
+            "is_moderator",
         ]
 
 

@@ -66,10 +66,12 @@ class LogoutView(generics.GenericAPIView):
             token.blacklist()
 
             return Response(
-                {"msg": "logged out successfully!"}, status=status.HTTP_200_OK
+                {"msg": "logged out successfully!"}, status=status.HTTP_204_NO_CONTENT
             )
         except (TokenError, InvalidToken):
-            return Response({"msg": "session cleared"}, status=status.HTTP_201_CREATED)
+            return Response(
+                {"msg": "session cleared"}, status=status.HTTP_204_NO_CONTENT
+            )
 
 
 class PasswordResetView(generics.GenericAPIView):

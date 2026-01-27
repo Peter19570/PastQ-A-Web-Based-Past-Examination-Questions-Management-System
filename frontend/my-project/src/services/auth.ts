@@ -63,4 +63,9 @@ export const authService = {
     const response = await api.post(`/users/password-reset-confirm/${id}/`, data);
     return response.data;
   },
+
+  getAdminUsers: async () => {
+    const response = await api.get('/users/admin/');
+    return response.data;
+  },
 };

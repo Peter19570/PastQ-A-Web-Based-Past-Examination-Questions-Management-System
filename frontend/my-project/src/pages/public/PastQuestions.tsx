@@ -1,15 +1,18 @@
-import { useState, useEffect } from 'react';
-import { useSearchParams, useNavigate } from 'react-router-dom';
-import { Search, Filter } from 'lucide-react';
-import { pastQuestionsService, PastQuestion } from '../../services/pastQuestions';
-import { PastQuestionCard } from '../../components/PastQuestions/PastQuestionCard';
-import { Pagination } from '../../components/Common/Pagination';
-import { SkeletonCard } from '../../components/Common/Loader';
-import { useDebounce } from '../../hooks/useDebounce';
-import { useAuth } from '../../context/AuthContext';
-import { useToast } from '../../components/Common/Toast';
-import { Input } from '../../components/Common/Input';
-import { SEMESTERS, YEARS } from '../../utils/constants';
+import { useState, useEffect } from "react";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { Search, Filter } from "lucide-react";
+import {
+  pastQuestionsService,
+  PastQuestion,
+} from "../../services/pastQuestions";
+import { PastQuestionCard } from "../../components/PastQuestions/PastQuestionCard";
+import { Pagination } from "../../components/Common/Pagination";
+import { SkeletonCard } from "../../components/Common/Loader";
+import { useDebounce } from "../../hooks/useDebounce";
+import { useAuth } from "../../context/AuthContext";
+import { useToast } from "../../components/Common/Toast";
+import { Input } from "../../components/Common/Input";
+import { SEMESTERS, YEARS } from "../../utils/constants";
 
 export const PastQuestions = () => {
   const [searchParams, setSearchParams] = useSearchParams();
@@ -17,14 +20,21 @@ export const PastQuestions = () => {
   const [loading, setLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
   const [totalPages, setTotalPages] = useState(1);
-  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
-  const [selectedYear, setSelectedYear] = useState(searchParams.get('year') || '');
-  const [selectedSemester, setSelectedSemester] = useState(searchParams.get('semester') || '');
+  const [searchQuery, setSearchQuery] = useState(
+    searchParams.get("search") || "",
+  );
+  const [selectedYear, setSelectedYear] = useState(
+    searchParams.get("year") || "",
+  );
+  const [selectedSemester, setSelectedSemester] = useState(
+    searchParams.get("semester") || "",
+  );
   const [showFilters, setShowFilters] = useState(false);
   const debouncedSearch = useDebounce(searchQuery, 300);
   const { isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
+  
 
   useEffect(() => {
     const fetchPastQuestions = async () => {
@@ -46,7 +56,7 @@ export const PastQuestions = () => {
         setPastQuestions(data.results || data);
         setTotalPages(data.count ? Math.ceil(data.count / 12) : 1);
       } catch (error) {
-        console.error('Failed to fetch past questions:', error);
+        console.error("Failed to fetch past questions:", error);
       } finally {
         setLoading(false);
       }
@@ -63,8 +73,10 @@ export const PastQuestions = () => {
 
   const updateSearchParams = (updates: Record<string, string>) => {
     const params: Record<string, string> = {};
-    if (updates.search || searchQuery) params.search = updates.search || searchQuery;
-    if (updates.year || selectedYear) params.year = updates.year || selectedYear;
+    if (updates.search || searchQuery)
+      params.search = updates.search || searchQuery;
+    if (updates.year || selectedYear)
+      params.year = updates.year || selectedYear;
     if (updates.semester || selectedSemester)
       params.semester = updates.semester || selectedSemester;
     setSearchParams(params);
@@ -72,8 +84,8 @@ export const PastQuestions = () => {
 
   const handleDownload = (id: number) => {
     if (!isAuthenticated) {
-      showToast('info', 'Please login to download past questions');
-      navigate('/login');
+      showToast("info", "Please login to download past questions");
+      navigate("/login");
       return;
     }
     navigate(`/past-questions/${id}`);
@@ -170,7 +182,11 @@ export const PastQuestions = () => {
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
             {pastQuestions.map((pq) => (
-              <PastQuestionCard key={pq.id} pastQuestion={pq} onDownload={handleDownload} />
+              <PastQuestionCard
+                key={pq.id}
+                pastQuestion={pq}
+                onDownload={handleDownload}
+              />
             ))}
           </div>
           <Pagination
@@ -182,7 +198,9 @@ export const PastQuestions = () => {
       ) : (
         <div className="text-center py-12">
           <p className="text-gray-600 dark:text-gray-400">
-            {searchQuery ? 'No past questions found matching your search.' : 'No past questions available.'}
+            {searchQuery
+              ? "No past questions found matching your search."
+              : "No past questions available."}
           </p>
         </div>
       )}
