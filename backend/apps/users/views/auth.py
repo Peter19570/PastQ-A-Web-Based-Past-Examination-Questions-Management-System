@@ -1,6 +1,7 @@
 from rest_framework import generics, status, permissions
 from rest_framework.response import Response
 from rest_framework_simplejwt.tokens import RefreshToken
+from rest_framework_simplejwt.exceptions import InvalidToken, TokenError
 from ..serializers import *
 
 
@@ -57,13 +58,18 @@ class LogoutView(generics.GenericAPIView):
     permission_classes = [permissions.IsAuthenticated]
 
     def post(self, request):
-        refresh = request.data.get("refresh")
-        if not refresh:
-            raise ValueError("refresh token is invalid")
-        token = RefreshToken(refresh)
-        token.blacklist()
+        try:
+            refresh = request.data.get("refresh")
+            if not refresh:
+                raise ValueError("refresh token is invalid")
+            token = RefreshToken(refresh)
+            token.blacklist()
 
-        return Response({"msg": "logged out successfully!"}, status=status.HTTP_200_OK)
+            return Response(
+                {"msg": "logged out successfully!"}, status=status.HTTP_200_OK
+            )
+        except (TokenError, InvalidToken):
+            return Response({"msg": "session cleared"}, status=status.HTTP_201_CREATED)
 
 
 class PasswordResetView(generics.GenericAPIView):
