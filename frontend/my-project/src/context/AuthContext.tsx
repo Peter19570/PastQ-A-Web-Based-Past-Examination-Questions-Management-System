@@ -6,6 +6,8 @@ import {
   ReactNode,
 } from "react";
 import { authService, LoginData, RegisterData } from "../services/auth";
+import { useNavigate } from "react-router-dom";
+
 
 interface User {
   id: number;
@@ -36,6 +38,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const navigate = useNavigate(); //
 
   useEffect(() => {
     const initAuth = async () => {
@@ -50,21 +53,23 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
           localStorage.setItem("user", JSON.stringify(profile));
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
-          localStorage.removeItem("accessToken");
-          localStorage.removeItem("refreshToken");
-          localStorage.removeItem("user");
-          setUser(null);
+          handleLocalClear();
         }
       }
       setLoading(false);
     };
-
     initAuth();
   }, []);
 
+  const handleLocalClear = () => {
+    localStorage.removeItem("accessToken");
+    localStorage.removeItem("refreshToken");
+    localStorage.removeItem("user");
+    setUser(null);
+  };
+
   const login = async (data: LoginData) => {
     const response = await authService.login(data);
-
     const access = response.tokens?.access;
     const refresh = response.tokens?.refresh;
     const userData = response.user;
@@ -75,18 +80,19 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
       const userWithRoles = {
         ...userData,
-        isAdmin: userData.is_admin || userData.is_superuser,
+        isAdmin:
+          userData.is_admin || userData.is_superuser || userData.is_staff,
         isModerator: userData.is_moderator || userData.is_staff,
       };
 
       localStorage.setItem("user", JSON.stringify(userWithRoles));
       setUser(userWithRoles);
 
-      // 2. Reroute based on the flags in the data
+      // FIX: Use navigate() instead of window.location.href to stop the white flash
       if (userWithRoles.isAdmin || userWithRoles.isModerator) {
-        window.location.href = "/admin";
+        navigate("/admin");
       } else {
-        window.location.href = "/dashboard";
+        navigate("/dashboard");
       }
     }
   };
@@ -94,23 +100,18 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (data: RegisterData) => {
     try {
       const response = await authService.register(data);
-
-      // 1. Access the nested tokens and user data directly
       const access = response.tokens?.access;
       const refresh = response.tokens?.refresh;
       const userData = response.user;
 
       if (access && refresh && userData) {
-        // 2. Save everything to storage immediately
         localStorage.setItem("accessToken", access);
         localStorage.setItem("refreshToken", refresh);
         localStorage.setItem("user", JSON.stringify(userData));
-
-        // 3. Update the user state ONCE to prevent the white flash
         setUser(userData);
 
-        // 4. Redirect to Dashboard
-        window.location.href = "/dashboard";
+        // FIX: Use navigate() for smooth transition
+        navigate("/dashboard");
       }
     } catch (error) {
       console.error("Registration failed:", error);
@@ -124,13 +125,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         await authService.logout(refreshToken);
       }
     } catch (error) {
-      console.error("Backend logout failed, but clearing local session anyway");
+      console.error("Logout failed");
     } finally {
-      localStorage.removeItem("accessToken");
-      localStorage.removeItem("refreshToken");
-      localStorage.removeItem("user");
-      setUser(null);
-      window.location.href = "/login";
+      handleLocalClear();
+      // FIX: Use navigate() for smooth transition
+      navigate("/login");
     }
   };
 
@@ -142,6 +141,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     }
   };
 
+  // FIX: Added 'loading' and other values to the Provider
   const value = {
     user,
     loading,
@@ -150,10 +150,21 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
     logout,
     refreshUser,
     isAuthenticated: !!user,
-    isAdmin: user?.is_staff || false,
+    isAdmin: user?.is_staff || user?.is_admin || false,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider value={value}>
+      {/* While the app is checking the token, show your loader */}
+      {loading ? (
+        <div className="h-screen w-full flex items-center justify-center bg-white dark:bg-[#0f172a]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary-600"></div>
+        </div>
+      ) : (
+        children
+      )}
+    </AuthContext.Provider>
+  );
 };
 
 export const useAuth = () => {

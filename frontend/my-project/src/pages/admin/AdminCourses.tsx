@@ -5,7 +5,6 @@ import { useToast } from "../../components/Common/Toast";
 import { Button } from "../../components/Common/Button";
 import { Modal } from "../../components/Common/Modal";
 import { PageLoader } from "../../components/Common/Loader";
-import { Pagination } from "../../components/Common/Pagination";
 
 export const AdminCourses = () => {
   // --- STATE MANAGEMENT ---
@@ -13,11 +12,8 @@ export const AdminCourses = () => {
   const [loading, setLoading] = useState(true);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingCode, setEditingCode] = useState<string | null>(null);
+  const [editingCode, setEditingCode] = useState<string | null>(null); // Tracks if we are editing
   const { showToast } = useToast();
-  const [currentPage, setCurrentPage] = useState(1);
-  const [totalCount, setTotalCount] = useState(0);
-  const pageSize = 10; // Matches your Django 'page_size'
 
   const [formData, setFormData] = useState({
     code: "",
@@ -34,7 +30,7 @@ export const AdminCourses = () => {
 
   useEffect(() => {
     fetchCourses();
-  }, [currentPage]);
+  }, []);
 
   const fetchCourses = async () => {
     try {
