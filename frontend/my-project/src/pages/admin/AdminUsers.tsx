@@ -1,12 +1,10 @@
 import { useState, useEffect } from "react";
 import { Users, Trash2 } from "lucide-react";
-import { authService } from "../../services/auth"; // You'll need an admin user service
-
+import { authService } from "../../services/auth";
 export const AdminUsers = () => {
   const [users, setUsers] = useState([]);
 
   useEffect(() => {
-    // Hits: GET /users/admin/
     const fetchUsers = async () => {
       const data = await authService.getAdminUsers();
       setUsers(data);

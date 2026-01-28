@@ -115,7 +115,7 @@ export const PastQuestionDetail = () => {
             <div>
               <div className="flex items-center gap-2 mb-3">
                 <span className="px-3 py-1 bg-primary-100 dark:bg-primary-900/30 text-primary-600 dark:text-primary-400 text-sm font-bold rounded-full">
-                  {question.course.code}
+                  {typeof question.course === "object" && question.course?.code}
                 </span>
                 {question.status === "approved" && (
                   <span className="flex items-center gap-1 px-3 py-1 bg-green-100 dark:bg-green-900/30 text-green-700 dark:text-green-400 text-sm font-medium rounded-full">
@@ -128,7 +128,7 @@ export const PastQuestionDetail = () => {
                 {question.title}
               </h1>
               <p className="text-lg text-gray-600 dark:text-gray-400">
-                {question.course.title}
+                {typeof question.course === "object" && question.course?.title}
               </p>
             </div>
 

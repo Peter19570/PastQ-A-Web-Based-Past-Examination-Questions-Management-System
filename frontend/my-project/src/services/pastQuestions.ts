@@ -62,8 +62,7 @@ export const pastQuestionsService = {
   
   upload: async (data: PastQuestionUpload) => {
     const formData = new FormData();
-    
-    // Append every field exactly as Django expects them
+
     formData.append('course_id', data.course_id.toString());
     formData.append('year', data.year.toString());
     formData.append('semester', data.semester);
@@ -73,7 +72,6 @@ export const pastQuestionsService = {
     
     if (data.lecturer) formData.append('lecturer', data.lecturer);
 
-    // Convert booleans to strings so Django can read them from FormData
     formData.append('has_solutions', String(data.has_solutions));
     formData.append('is_scanned', String(data.is_scanned));
 

@@ -23,12 +23,14 @@ export const AdminModeration = () => {
 
   const handleAction = async (id: number, action: "approve" | "reject") => {
     try {
-      // Hits: POST /past-questions/{id}/approve/ or /reject/
       if (action === "approve") await pastQuestionsService.approve(id);
-      else await pastQuestionsService.reject(id);
+      else
+        await pastQuestionsService.reject(id, {
+          rejection_reason: "Information incomplete",
+        });
 
       toast.success(`Question ${action}d successfully`);
-      fetchPending(); // Refresh list
+      fetchPending();
     } catch (error) {
       toast.error("Action failed");
     }

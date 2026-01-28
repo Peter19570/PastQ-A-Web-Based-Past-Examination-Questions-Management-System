@@ -8,7 +8,6 @@ import {
 import { authService, LoginData, RegisterData } from "../services/auth";
 import { useNavigate } from "react-router-dom";
 
-
 interface User {
   id: number;
   email: string;
@@ -49,7 +48,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         try {
           setUser(JSON.parse(savedUser));
           const profile = await authService.getProfile();
-          setUser(profile);
+          setUser(profile as any);
           localStorage.setItem("user", JSON.stringify(profile));
         } catch (error) {
           console.error("Failed to fetch user profile:", error);
@@ -110,7 +109,6 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
         localStorage.setItem("user", JSON.stringify(userData));
         setUser(userData);
 
-        // FIX: Use navigate() for smooth transition
         navigate("/dashboard");
       }
     } catch (error) {
@@ -136,12 +134,11 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const refreshUser = async () => {
     if (user) {
       const profile = await authService.getProfile();
-      setUser(profile);
+      setUser(profile as any);
       localStorage.setItem("user", JSON.stringify(profile));
     }
   };
 
-  // FIX: Added 'loading' and other values to the Provider
   const value = {
     user,
     loading,

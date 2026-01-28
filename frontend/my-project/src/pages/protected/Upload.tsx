@@ -6,7 +6,6 @@ import {
   X,
   ChevronDown,
   Check,
-  Sparkles,
   UserCircle,
 } from "lucide-react";
 import { useNavigate } from "react-router-dom";
@@ -176,7 +175,7 @@ export const Upload = () => {
                       key={course.id}
                       className="flex items-center justify-between px-4 py-3 hover:bg-primary-50 dark:hover:bg-primary-900/20 cursor-pointer transition-colors border-b last:border-0 border-gray-100 dark:border-gray-800"
                       onClick={() => {
-                        setValue("course_id", course.id); // Passing course_id as expected by backend
+                        setValue("course_id", course.id);
                         setSearchQuery(`${course.code} - ${course.title}`);
                         setIsDropdownOpen(false);
                       }}
