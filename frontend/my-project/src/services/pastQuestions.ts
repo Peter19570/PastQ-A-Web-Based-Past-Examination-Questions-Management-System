@@ -125,8 +125,8 @@ export const pastQuestionsService = {
     return response.data;
   },
 
-  reject: async (id: number, reason?: string) => {
-    const response = await api.post(`/past-questions/${id}/reject/`, { reason });
+  reject: async (id: number, data: { rejection_reason: string }) => {
+    const response = await api.post(`/past-questions/${id}/reject/`, data);
     return response.data;
   },
 
