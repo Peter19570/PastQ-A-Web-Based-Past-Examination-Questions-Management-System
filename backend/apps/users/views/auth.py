@@ -82,7 +82,7 @@ class PasswordResetView(generics.GenericAPIView):
         serializer.is_valid(raise_exception=True)
 
         # Normally you would send an email here with a token
-        return response.Response(
+        return Response(
             {"msg": "Password reset link sent (simulation)."}, status=status.HTTP_200_OK
         )
 
@@ -103,6 +103,6 @@ class PasswordResetConfirmView(generics.GenericAPIView):
         serializer = self.get_serializer(data=request.data)
         serializer.is_valid(raise_exception=True)
         serializer.save(user)
-        return response.Response(
+        return Response(
             {"msg": "Password has been reset successfully."}, status=status.HTTP_200_OK
         )

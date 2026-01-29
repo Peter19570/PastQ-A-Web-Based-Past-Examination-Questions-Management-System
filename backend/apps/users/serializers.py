@@ -82,6 +82,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "is_admin",
             "is_moderator",
             "is_staff",
+            "is_active",
         ]
         read_only_fields = [
             "date_joined",

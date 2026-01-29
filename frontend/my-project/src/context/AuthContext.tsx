@@ -99,6 +99,7 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
   const register = async (data: RegisterData) => {
     try {
       const response = await authService.register(data);
+
       const access = response.tokens?.access;
       const refresh = response.tokens?.refresh;
       const userData = response.user;
@@ -111,8 +112,9 @@ export const AuthProvider = ({ children }: { children: ReactNode }) => {
 
         navigate("/dashboard");
       }
-    } catch (error) {
-      console.error("Registration failed:", error);
+    } catch (error: any) {
+      console.error("Registration failed:", error.response?.data);
+      throw error;
     }
   };
 

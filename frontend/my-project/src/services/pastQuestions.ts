@@ -48,12 +48,10 @@ export const pastQuestionsService = {
   },
 
   getDownloadUrl: (id: number) => {
-    // This returns the exact endpoint shown in your screenshot
     return `${API_BASE_URL}/past-questions/${id}/download/`;
   },
   
   downloadFile: async (id: number) => {
-    // We use responseType: 'blob' to get the actual file data
     const response = await api.get(`/past-questions/${id}/download/`, {
       responseType: 'blob',
     });

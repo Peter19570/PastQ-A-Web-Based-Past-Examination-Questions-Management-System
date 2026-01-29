@@ -34,11 +34,13 @@ export const PastQuestions = () => {
   const { isAuthenticated } = useAuth();
   const { showToast } = useToast();
   const navigate = useNavigate();
-  
 
   useEffect(() => {
     const fetchPastQuestions = async () => {
       setLoading(true);
+
+      const BACKEND_PAGE_SIZE = 12;
+
       try {
         const params: {
           search?: string;
@@ -48,22 +50,33 @@ export const PastQuestions = () => {
         } = {
           page: currentPage,
         };
+
         if (debouncedSearch) params.search = debouncedSearch;
         if (selectedYear) params.year = parseInt(selectedYear);
         if (selectedSemester) params.semester = selectedSemester;
 
         const data = await pastQuestionsService.getAll(params);
-        setPastQuestions(data.results || data);
-        setTotalPages(data.count ? Math.ceil(data.count / 12) : 1);
+
+        const results = data.results || data;
+        const resultsArray = Array.isArray(results) ? results : [];
+        setPastQuestions(resultsArray);
+
+        if (data.count) {
+          const calculatedTotal = Math.ceil(data.count / BACKEND_PAGE_SIZE);
+          setTotalPages(calculatedTotal > 0 ? calculatedTotal : 1);
+        }
+
+        window.scrollTo({ top: 0, behavior: "smooth" });
       } catch (error) {
         console.error("Failed to fetch past questions:", error);
+        showToast("error", "Failed to load results");
       } finally {
         setLoading(false);
       }
     };
 
     fetchPastQuestions();
-  }, [currentPage, debouncedSearch, selectedYear, selectedSemester]);
+  }, [currentPage, debouncedSearch, selectedYear, selectedSemester, showToast]);
 
   const handleSearch = (value: string) => {
     setSearchQuery(value);
@@ -109,7 +122,9 @@ export const PastQuestions = () => {
                 type="text"
                 placeholder="Search past questions..."
                 value={searchQuery}
-                onChange={(e) => handleSearch(e.target.value)}
+                onChange={(e: React.ChangeEvent<HTMLInputElement>) =>
+                  handleSearch(e.target.value)
+                }
                 className="pl-12"
               />
             </div>
@@ -135,7 +150,7 @@ export const PastQuestions = () => {
                     setCurrentPage(1);
                     updateSearchParams({ year: e.target.value });
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:border-primary-500"
                 >
                   <option value="">All Years</option>
                   {YEARS.map((year) => (
@@ -157,7 +172,7 @@ export const PastQuestions = () => {
                     setCurrentPage(1);
                     updateSearchParams({ semester: e.target.value });
                   }}
-                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white"
+                  className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-900 text-gray-900 dark:text-white outline-none focus:border-primary-500"
                 >
                   <option value="">All Semesters</option>
                   {SEMESTERS.map((sem) => (
@@ -189,11 +204,13 @@ export const PastQuestions = () => {
               />
             ))}
           </div>
-          <Pagination
-            currentPage={currentPage}
-            totalPages={totalPages}
-            onPageChange={setCurrentPage}
-          />
+          <div className="mt-12">
+            <Pagination
+              currentPage={currentPage}
+              totalPages={totalPages}
+              onPageChange={setCurrentPage}
+            />
+          </div>
         </>
       ) : (
         <div className="text-center py-12">

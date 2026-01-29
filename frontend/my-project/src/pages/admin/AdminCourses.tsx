@@ -1,5 +1,5 @@
-import { useState, useEffect } from "react";
-import { Plus, Edit, Trash2 } from "lucide-react";
+import { useState, useEffect, useMemo } from "react"; // Added useMemo
+import { Plus, Edit, Trash2, Search, X } from "lucide-react"; // Added Search, X
 import { coursesService } from "../../services/courses";
 import { useToast } from "../../components/Common/Toast";
 import { Button } from "../../components/Common/Button";
@@ -7,12 +7,12 @@ import { Modal } from "../../components/Common/Modal";
 import { PageLoader } from "../../components/Common/Loader";
 
 export const AdminCourses = () => {
-  // --- STATE MANAGEMENT ---
   const [courses, setCourses] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState(""); // Search state
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
-  const [editingCode, setEditingCode] = useState<string | null>(null); // Tracks if we are editing
+  const [editingCode, setEditingCode] = useState<string | null>(null);
   const { showToast } = useToast();
 
   const [formData, setFormData] = useState({
@@ -26,11 +26,21 @@ export const AdminCourses = () => {
     description: "",
   });
 
-  // --- ACTIONS ---
-
   useEffect(() => {
     fetchCourses();
   }, []);
+
+  // --- SEARCH FILTERING LOGIC ---
+  const filteredCourses = useMemo(() => {
+    return courses.filter((course) => {
+      const searchStr = searchQuery.toLowerCase();
+      return (
+        course.code.toLowerCase().includes(searchStr) ||
+        course.title.toLowerCase().includes(searchStr) ||
+        course.department?.toLowerCase().includes(searchStr)
+      );
+    });
+  }, [courses, searchQuery]);
 
   const fetchCourses = async () => {
     try {
@@ -44,7 +54,6 @@ export const AdminCourses = () => {
     }
   };
 
-  // When Edit is clicked, fill the form and open Modal
   const handleEditClick = (course: any) => {
     setEditingCode(course.code);
     setFormData({
@@ -86,11 +95,9 @@ export const AdminCourses = () => {
       };
 
       if (editingCode) {
-        // Update existing
         await coursesService.update(editingCode, payload);
         showToast("success", "Course updated!");
       } else {
-        // Create new
         await coursesService.create(payload);
         showToast("success", "Course added successfully!");
       }
@@ -127,66 +134,107 @@ export const AdminCourses = () => {
 
   return (
     <div className="space-y-6">
-      {/* HEADER */}
-      <div className="flex justify-between items-center">
-        <h1 className="text-2xl font-black dark:text-white uppercase tracking-tighter">
-          Course Management
-        </h1>
-        <Button
-          onClick={() => setIsModalOpen(true)}
-          className="gap-2 bg-primary-600 text-white font-bold"
-        >
-          <Plus className="w-5 h-5" /> Add New Course
-        </Button>
+      {/* HEADER & SEARCH BAR */}
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+          <h1 className="text-2xl font-black dark:text-white uppercase tracking-tighter">
+            Course Management
+          </h1>
+          <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
+            Showing {filteredCourses.length} of {courses.length} items
+          </p>
+        </div>
+
+        <div className="flex w-full md:w-auto items-center gap-3">
+          {/* SEARCH INPUT */}
+          <div className="relative flex-1 md:w-80">
+            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" />
+            <input
+              type="text"
+              placeholder="Search by code or title..."
+              className="w-full pl-10 pr-10 py-2 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-xl text-sm outline-none focus:ring-2 ring-primary-500/20 focus:border-primary-500 transition-all dark:text-white"
+              value={searchQuery}
+              onChange={(e) => setSearchQuery(e.target.value)}
+            />
+            {searchQuery && (
+              <button
+                onClick={() => setSearchQuery("")}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600"
+              >
+                <X className="w-4 h-4" />
+              </button>
+            )}
+          </div>
+
+          <Button
+            onClick={() => setIsModalOpen(true)}
+            className="gap-2 bg-primary-600 text-white font-bold whitespace-nowrap"
+          >
+            <Plus className="w-5 h-5" /> Add Course
+          </Button>
+        </div>
       </div>
 
-      {/* TABLE */}
+      {/* TABLE WITH MOBILE SCROLL FIX */}
       <div className="bg-white dark:bg-slate-800 rounded-2xl border border-slate-200 dark:border-slate-700 overflow-hidden shadow-sm">
-        <table className="w-full text-left border-collapse">
-          <thead className="bg-slate-50 dark:bg-slate-900/50">
-            <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
-              <th className="p-4">Code</th>
-              <th className="p-4">Title</th>
-              <th className="p-4">Faculty</th>
-              <th className="p-4 text-center">Actions</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
-            {courses.map((course) => (
-              <tr
-                key={course.code}
-                className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
-              >
-                <td className="p-4 font-black text-primary-600">
-                  {course.code}
-                </td>
-                <td className="p-4 text-sm font-bold dark:text-slate-200">
-                  {course.title}
-                </td>
-                <td className="p-4 text-xs text-slate-500 font-medium">
-                  {course.faculty_display || course.faculty}
-                </td>
-                <td className="p-4">
-                  <div className="flex justify-center gap-2">
-                    <button
-                      onClick={() => handleEditClick(course)}
-                      className="p-2 text-slate-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </button>
-                    <button
-                      onClick={() => handleDelete(course.code)}
-                      className="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
-                    >
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
-                </td>
+        <div className="overflow-x-auto no-scrollbar">
+          <table className="w-full text-left border-collapse min-w-[600px]">
+            <thead className="bg-slate-50 dark:bg-slate-900/50">
+              <tr className="text-[10px] font-black text-slate-400 uppercase tracking-widest">
+                <th className="p-4">Code</th>
+                <th className="p-4">Title</th>
+                <th className="p-4">Faculty</th>
+                <th className="p-4 text-center">Actions</th>
               </tr>
-            ))}
-          </tbody>
-        </table>
+            </thead>
+            <tbody className="divide-y divide-slate-100 dark:divide-slate-700">
+              {filteredCourses.map((course) => (
+                <tr
+                  key={course.code}
+                  className="hover:bg-slate-50 dark:hover:bg-slate-800/30 transition-colors"
+                >
+                  <td className="p-4 font-black text-primary-600">
+                    {course.code}
+                  </td>
+                  <td className="p-4 text-sm font-bold dark:text-slate-200 whitespace-nowrap">
+                    {course.title}
+                  </td>
+                  <td className="p-4 text-xs text-slate-500 font-medium whitespace-nowrap">
+                    {course.faculty_display || course.faculty}
+                  </td>
+                  <td className="p-4">
+                    <div className="flex justify-center gap-2">
+                      <button
+                        onClick={() => handleEditClick(course)}
+                        className="p-2 text-slate-400 hover:text-blue-500 rounded-lg hover:bg-blue-50 dark:hover:bg-blue-900/20"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </button>
+                      <button
+                        onClick={() => handleDelete(course.code)}
+                        className="p-2 text-slate-400 hover:text-red-500 rounded-lg hover:bg-red-50 dark:hover:bg-red-900/20"
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              ))}
+              {filteredCourses.length === 0 && (
+                <tr>
+                  <td colSpan={4} className="p-12 text-center">
+                    <p className="text-slate-400 font-bold uppercase tracking-widest text-xs">
+                      No courses matching your search
+                    </p>
+                  </td>
+                </tr>
+              )}
+            </tbody>
+          </table>
+        </div>
       </div>
+
+      {/* MODAL remains the same... */}
 
       {/* FORM MODAL */}
       <Modal
@@ -202,7 +250,7 @@ export const AdminCourses = () => {
               </label>
               <input
                 required
-                disabled={!!editingCode} // Usually course codes shouldn't change
+                disabled={!!editingCode}
                 className="w-full p-2 bg-slate-50 dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg outline-none focus:border-primary-500 text-sm dark:text-white disabled:opacity-50"
                 value={formData.code}
                 onChange={(e) =>

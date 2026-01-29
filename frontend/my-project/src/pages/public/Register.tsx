@@ -7,12 +7,11 @@ import { useToast } from "../../components/Common/Toast";
 import { Input } from "../../components/Common/Input";
 import { Button } from "../../components/Common/Button";
 
-// Updated interface to match Django Serializer
 interface RegisterForm {
   index_number: string;
   email: string;
   password: string;
-  confirm_password: string; 
+  confirm_password: string;
 }
 
 export const Register = () => {
@@ -32,20 +31,31 @@ export const Register = () => {
   const onSubmit = async (data: RegisterForm) => {
     setLoading(true);
     try {
-      // Data payload now matches your backend serializer exactly
       await registerUser({
         email: data.email,
         index_number: data.index_number,
         password: data.password,
         confirm_password: data.confirm_password,
       });
+
       showToast("success", "Account created successfully!");
       navigate("/dashboard");
-    } catch (error: unknown) {
-      const errorMessage =
-        error instanceof Error && "response" in error
-          ? "Registration failed. Email or Index Number may already be in use."
-          : "Failed to create account. Please try again.";
+    } catch (error: any) {
+      const serverErrors = error.response?.data;
+      let errorMessage = "Registration failed. Please try again.";
+
+      if (serverErrors) {
+        if (serverErrors.non_field_errors) {
+          errorMessage = serverErrors.non_field_errors[0];
+        } else if (serverErrors.index_number) {
+          errorMessage = `Index Number: ${serverErrors.index_number[0]}`;
+        } else if (serverErrors.email) {
+          errorMessage = `Email: ${serverErrors.email[0]}`;
+        } else if (typeof serverErrors === "string") {
+          errorMessage = serverErrors;
+        }
+      }
+
       showToast("error", errorMessage);
     } finally {
       setLoading(false);

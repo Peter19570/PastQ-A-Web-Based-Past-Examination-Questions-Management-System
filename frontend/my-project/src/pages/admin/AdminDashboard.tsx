@@ -7,21 +7,22 @@ import {
   Eye,
   BookOpen,
   AlertTriangle,
+  FileText,
 } from "lucide-react";
 import { pastQuestionsService } from "../../services/pastQuestions";
 import { coursesService } from "../../services/courses";
 import { useToast } from "../../components/Common/Toast";
 import { Button } from "../../components/Common/Button";
 import { PageLoader } from "../../components/Common/Loader";
-import { Modal } from "../../components/Common/Modal"; // Ensure this import exists
+import { Modal } from "../../components/Common/Modal";
 
 export const AdminDashboard = () => {
   const [pendingUploads, setPendingUploads] = useState<any[]>([]);
   const [totalCourses, setTotalCourses] = useState(0);
+  const [totalQuestions, setTotalQuestions] = useState(0);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
 
-  // Rejection Modal States
   const [rejectId, setRejectId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
 
@@ -42,9 +43,10 @@ export const AdminDashboard = () => {
 
   const fetchDashboardData = async () => {
     try {
-      const [pendingData, coursesData] = await Promise.all([
+      const [pendingData, coursesData, allQuestionsData] = await Promise.all([
         pastQuestionsService.getPending(),
         coursesService.getAll(),
+        pastQuestionsService.getAll(),
       ]);
 
       const pendingList = Array.isArray(pendingData)
@@ -54,8 +56,19 @@ export const AdminDashboard = () => {
         ? coursesData
         : coursesData.results;
 
+      // Meta counts from backend pagination
+      // const totalPendingCount = pendingData.count ?? pendingList?.length ?? 0;
+      const totalCoursesCount = coursesData.count ?? coursesList?.length ?? 0;
+      const totalQuestionsCount =
+        allQuestionsData.count ??
+        (Array.isArray(allQuestionsData)
+          ? allQuestionsData.length
+          : allQuestionsData.results?.length) ??
+        0;
+
       setPendingUploads(pendingList || []);
-      setTotalCourses(coursesList?.length || 0);
+      setTotalCourses(totalCoursesCount);
+      setTotalQuestions(totalQuestionsCount); // Setting the new count
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
       showToast("error", "Failed to refresh dashboard data");
@@ -70,6 +83,8 @@ export const AdminDashboard = () => {
       await pastQuestionsService.approve(id);
       showToast("success", "Past question approved successfully");
       setPendingUploads((prev) => prev.filter((item) => item.id !== id));
+      // Refresh counts to stay accurate
+      fetchDashboardData();
     } catch (error) {
       showToast("error", "Failed to approve past question");
     } finally {
@@ -112,7 +127,8 @@ export const AdminDashboard = () => {
       </div>
 
       {/* --- STAT CARDS SECTION --- */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        {/* Total Courses */}
         <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-md">
           <div className="flex justify-between items-start">
             <div>
@@ -129,6 +145,24 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
+        {/* Total Past Questions - NEW CARD */}
+        <div className="bg-white dark:bg-gray-800 p-6 rounded-2xl border border-gray-200 dark:border-gray-700 shadow-md">
+          <div className="flex justify-between items-start">
+            <div>
+              <p className="text-[10px] font-black text-gray-400 uppercase tracking-widest mb-1">
+                Total Questions
+              </p>
+              <h3 className="text-4xl font-black text-gray-900 dark:text-white">
+                {totalQuestions}
+              </h3>
+            </div>
+            <div className="p-3 bg-purple-50 dark:bg-purple-500/10 text-purple-600 dark:text-purple-400 rounded-xl">
+              <FileText className="w-6 h-6" />
+            </div>
+          </div>
+        </div>
+
+        {/* Pending Review */}
         <div
           className={`p-6 rounded-2xl border shadow-md transition-all ${
             pendingUploads.length > 0
@@ -159,7 +193,8 @@ export const AdminDashboard = () => {
           </div>
         </div>
 
-        <div className="bg-primary-600 p-6 rounded-2xl border border-primary-500 shadow-lg shadow-primary-500/20 text-white flex flex-col justify-center">
+        {/* Admin Active Status */}
+        <div className="bg-primary-600 p-6 rounded-2xl border border-primary-500 shadow-lg shadow-primary-500/20 text-white flex flex-col justify-center items-center text-center">
           <h4 className="font-bold text-lg leading-tight uppercase tracking-tighter">
             Admin Active
           </h4>

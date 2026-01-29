@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight } from 'lucide-react';
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PaginationProps {
   currentPage: number;
@@ -6,12 +6,16 @@ interface PaginationProps {
   onPageChange: (page: number) => void;
 }
 
-export const Pagination = ({ currentPage, totalPages, onPageChange }: PaginationProps) => {
+export const Pagination = ({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: PaginationProps) => {
   const pages = [];
   const maxVisible = 5;
 
   let startPage = Math.max(1, currentPage - Math.floor(maxVisible / 2));
-  let endPage = Math.min(totalPages, startPage + maxVisible - 1);
+  const endPage = Math.min(totalPages, startPage + maxVisible - 1);
 
   if (endPage - startPage + 1 < maxVisible) {
     startPage = Math.max(1, endPage - maxVisible + 1);
@@ -51,8 +55,8 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
           onClick={() => onPageChange(page)}
           className={`px-4 py-2 rounded-lg border transition-colors ${
             page === currentPage
-              ? 'bg-primary-600 text-white border-primary-600'
-              : 'border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800'
+              ? "bg-primary-600 text-white border-primary-600"
+              : "border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800"
           }`}
         >
           {page}
@@ -61,7 +65,9 @@ export const Pagination = ({ currentPage, totalPages, onPageChange }: Pagination
 
       {endPage < totalPages && (
         <>
-          {endPage < totalPages - 1 && <span className="text-gray-500">...</span>}
+          {endPage < totalPages - 1 && (
+            <span className="text-gray-500">...</span>
+          )}
           <button
             onClick={() => onPageChange(totalPages)}
             className="px-4 py-2 rounded-lg border border-gray-300 dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors"

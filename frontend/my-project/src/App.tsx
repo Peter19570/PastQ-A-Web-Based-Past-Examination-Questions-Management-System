@@ -13,6 +13,8 @@ import { Courses } from "./pages/public/Courses";
 import { CourseDetail } from "./pages/public/CourseDetail";
 import { PastQuestions } from "./pages/public/PastQuestions";
 import { PastQuestionDetail } from "./pages/public/PastQuestionDetail";
+import { ForgotPassword } from "./pages/public/ForgotPassword";
+import { ResetPasswordConfirm } from "./pages/public/ResetPasswordConfirm";
 
 // Protected Pages
 import { Dashboard } from "./pages/protected/Dashboard";
@@ -45,6 +47,11 @@ function App() {
               <Route
                 path="/past-questions/:id"
                 element={<PastQuestionDetail />}
+              />
+              <Route path="/forgot-password" element={<ForgotPassword />} />
+              <Route
+                path="/reset-password/:id"
+                element={<ResetPasswordConfirm />}
               />
 
               {/* --- STUDENT PROTECTED ROUTES --- */}

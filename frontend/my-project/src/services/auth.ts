@@ -68,4 +68,15 @@ export const authService = {
     const response = await api.get('/users/admin/');
     return response.data;
   },
+
+  deleteUser: async (id: number) => {
+    // This hits your backend soft-deletion endpoint
+    const response = await api.delete(`/users/admin/${id}/`);
+    return response.data;
+  },
+
+  updateUserStatus: async (id: number, data: { is_active: boolean }) => {
+      const response = await api.patch(`/users/admin/${id}/`, data);
+      return response.data;
+    },
 };
