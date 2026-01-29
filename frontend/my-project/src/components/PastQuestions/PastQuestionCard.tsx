@@ -72,10 +72,12 @@ export const PastQuestionCard = ({
               <FileText className="h-5 w-5 text-primary-600 dark:text-primary-400" />
 
               <Link
-                to={`/courses/${pastQuestion.course.code}`}
+                to={`/courses/${typeof pastQuestion.course === "object" ? pastQuestion.course.code : ""}`}
                 className="text-xs font-medium text-primary-600 dark:text-primary-400 hover:underline"
               >
-                {pastQuestion.course.code || "Course Info"}
+                {typeof pastQuestion.course === "object"
+                  ? pastQuestion.course.code
+                  : "Course Info"}
               </Link>
             </div>
 
@@ -83,11 +85,12 @@ export const PastQuestionCard = ({
               {pastQuestion.title}
             </h3>
 
-            {pastQuestion.course?.title && (
-              <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
-                {pastQuestion.course.title}
-              </p>
-            )}
+            {typeof pastQuestion.course === "object" &&
+              pastQuestion.course?.title && (
+                <p className="text-sm text-gray-600 dark:text-gray-400 mb-2">
+                  {pastQuestion.course.title}
+                </p>
+              )}
           </div>
 
           <div className="flex flex-col gap-1 items-end">
