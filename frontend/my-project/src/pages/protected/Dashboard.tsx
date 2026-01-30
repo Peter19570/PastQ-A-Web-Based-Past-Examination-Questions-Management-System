@@ -1,30 +1,48 @@
+import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Upload, Download, Award, FileText } from "lucide-react";
 import { useAuth } from "../../context/AuthContext";
 import { Button } from "../../components/Common/Button";
+import { authService } from "../../services/auth";
 
 export const Dashboard = () => {
-  const { user } = useAuth();
+  const { user, setUser } = useAuth();
   const navigate = useNavigate();
+
+  useEffect(() => {
+    const getFreshStats = async () => {
+      try {
+        const response = await authService.getProfile();
+        const userData = (response as any).user || response;
+        setUser(userData);
+      } catch (error) {
+        console.error("Failed to sync dashboard stats:", error);
+      }
+    };
+    getFreshStats();
+  }, [setUser]);
 
   const stats = [
     {
       title: "Total Uploads",
-      value: user?.total_uploads || 0,
+      // Match the backend key from your Postman screenshot
+      value: user?.upload_count || 0,
       icon: Upload,
       color: "text-primary-600 dark:text-primary-400",
       bgColor: "bg-primary-100 dark:bg-primary-900",
     },
     {
       title: "Total Downloads",
-      value: user?.total_downloads || 0,
+      // Match the backend key from your Postman screenshot
+      value: user?.download_count || 0,
       icon: Download,
       color: "text-success-600 dark:text-success-400",
       bgColor: "bg-success-100 dark:bg-success-900",
     },
     {
       title: "Reputation",
-      value: user?.reputation || 0,
+      // Match the backend key from your Postman screenshot
+      value: user?.reputation_score || 0,
       icon: Award,
       color: "text-accent-grape",
       bgColor: "bg-accent-banana/20",
@@ -35,7 +53,7 @@ export const Dashboard = () => {
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
         <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
-          Welcome back, {user?.first_name}!
+          Welcome back, {user?.first_name || "Student"}!
         </h1>
         <p className="text-gray-600 dark:text-gray-400">
           Here's an overview of your activity on PastQ

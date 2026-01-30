@@ -1,12 +1,19 @@
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { User, Award, Upload as UploadIcon, Download, Edit2, Key } from 'lucide-react';
-import { useAuth } from '../../context/AuthContext';
-import { authService } from '../../services/auth';
-import { useToast } from '../../components/Common/Toast';
-import { Input } from '../../components/Common/Input';
-import { Button } from '../../components/Common/Button';
-import { Modal } from '../../components/Common/Modal';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import {
+  User,
+  Award,
+  Upload as UploadIcon,
+  Download,
+  Edit2,
+  Key,
+} from "lucide-react";
+import { useAuth } from "../../context/AuthContext";
+import { authService } from "../../services/auth";
+import { useToast } from "../../components/Common/Toast";
+import { Input } from "../../components/Common/Input";
+import { Button } from "../../components/Common/Button";
+import { Modal } from "../../components/Common/Modal";
 
 interface ProfileForm {
   first_name: string;
@@ -33,9 +40,9 @@ export const Profile = () => {
     formState: { errors: profileErrors },
   } = useForm<ProfileForm>({
     defaultValues: {
-      first_name: user?.first_name || '',
-      last_name: user?.last_name || '',
-      email: user?.email || '',
+      first_name: user?.first_name || "",
+      last_name: user?.last_name || "",
+      email: user?.email || "",
     },
   });
 
@@ -47,7 +54,7 @@ export const Profile = () => {
     formState: { errors: passwordErrors },
   } = useForm<PasswordForm>();
 
-  const newPassword = watch('new_password');
+  const newPassword = watch("new_password");
 
   const onProfileSubmit = async (data: ProfileForm) => {
     setLoading(true);
@@ -57,11 +64,11 @@ export const Profile = () => {
         last_name: data.last_name,
       });
       await refreshUser();
-      showToast('success', 'Profile updated successfully');
+      showToast("success", "Profile updated successfully");
       setEditMode(false);
     } catch (error) {
-      console.error('Failed to update profile:', error);
-      showToast('error', 'Failed to update profile');
+      console.error("Failed to update profile:", error);
+      showToast("error", "Failed to update profile");
     } finally {
       setLoading(false);
     }
@@ -73,13 +80,16 @@ export const Profile = () => {
       await authService.changePassword({
         old_password: data.old_password,
         new_password: data.new_password,
+        confirm_password: data.confirm_password,
       });
-      showToast('success', 'Password changed successfully');
+      showToast("success", "Password changed successfully");
       setShowPasswordModal(false);
       resetPasswordForm();
-    } catch (error) {
-      console.error('Failed to change password:', error);
-      showToast('error', 'Failed to change password');
+    } catch (error: any) {
+      console.error("Failed to change password:", error);
+      const message =
+        error.response?.data?.detail || "Failed to change password";
+      showToast("error", message);
     } finally {
       setLoading(false);
     }
@@ -87,33 +97,37 @@ export const Profile = () => {
 
   const stats = [
     {
-      title: 'Uploads',
+      title: "Uploads",
       value: user?.total_uploads || 0,
       icon: UploadIcon,
-      color: 'text-primary-600 dark:text-primary-400',
-      bgColor: 'bg-primary-100 dark:bg-primary-900',
+      color: "text-primary-600 dark:text-primary-400",
+      bgColor: "bg-primary-100 dark:bg-primary-900",
     },
     {
-      title: 'Downloads',
+      title: "Downloads",
       value: user?.total_downloads || 0,
       icon: Download,
-      color: 'text-success-600 dark:text-success-400',
-      bgColor: 'bg-success-100 dark:bg-success-900',
+      color: "text-success-600 dark:text-success-400",
+      bgColor: "bg-success-100 dark:bg-success-900",
     },
     {
-      title: 'Reputation',
+      title: "Reputation",
       value: user?.reputation || 0,
       icon: Award,
-      color: 'text-accent-grape',
-      bgColor: 'bg-accent-banana/20',
+      color: "text-accent-grape",
+      bgColor: "bg-accent-banana/20",
     },
   ];
 
   return (
     <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
       <div className="mb-8">
-        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">Profile</h1>
-        <p className="text-gray-600 dark:text-gray-400">Manage your account settings</p>
+        <h1 className="text-4xl font-bold text-gray-900 dark:text-white mb-2">
+          Profile
+        </h1>
+        <p className="text-gray-600 dark:text-gray-400">
+          Manage your account settings
+        </p>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -128,7 +142,9 @@ export const Profile = () => {
             <div className="text-3xl font-bold text-gray-900 dark:text-white mb-1">
               {stat.value}
             </div>
-            <div className="text-sm text-gray-600 dark:text-gray-400">{stat.title}</div>
+            <div className="text-sm text-gray-600 dark:text-gray-400">
+              {stat.title}
+            </div>
           </div>
         ))}
       </div>
@@ -151,19 +167,26 @@ export const Profile = () => {
           )}
         </div>
 
-        <form onSubmit={handleProfileSubmit(onProfileSubmit)} className="space-y-4">
+        <form
+          onSubmit={handleProfileSubmit(onProfileSubmit)}
+          className="space-y-4"
+        >
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <Input
               label="First Name"
               disabled={!editMode}
               error={profileErrors.first_name?.message}
-              {...registerProfile('first_name', { required: 'First name is required' })}
+              {...registerProfile("first_name", {
+                required: "First name is required",
+              })}
             />
             <Input
               label="Last Name"
               disabled={!editMode}
               error={profileErrors.last_name?.message}
-              {...registerProfile('last_name', { required: 'Last name is required' })}
+              {...registerProfile("last_name", {
+                required: "Last name is required",
+              })}
             />
           </div>
 
@@ -171,7 +194,7 @@ export const Profile = () => {
             label="Email"
             type="email"
             disabled
-            {...registerProfile('email')}
+            {...registerProfile("email")}
             helperText="Email cannot be changed"
           />
 
@@ -219,13 +242,16 @@ export const Profile = () => {
         }}
         title="Change Password"
       >
-        <form onSubmit={handlePasswordSubmit(onPasswordSubmit)} className="space-y-4">
+        <form
+          onSubmit={handlePasswordSubmit(onPasswordSubmit)}
+          className="space-y-4"
+        >
           <Input
             label="Current Password"
             type="password"
             error={passwordErrors.old_password?.message}
-            {...registerPassword('old_password', {
-              required: 'Current password is required',
+            {...registerPassword("old_password", {
+              required: "Current password is required",
             })}
           />
 
@@ -234,15 +260,16 @@ export const Profile = () => {
             type="password"
             error={passwordErrors.new_password?.message}
             helperText="At least 8 characters with uppercase, lowercase, and number"
-            {...registerPassword('new_password', {
-              required: 'New password is required',
+            {...registerPassword("new_password", {
+              required: "New password is required",
               minLength: {
                 value: 8,
-                message: 'Password must be at least 8 characters',
+                message: "Password must be at least 8 characters",
               },
               pattern: {
                 value: /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
-                message: 'Password must contain uppercase, lowercase, and number',
+                message:
+                  "Password must contain uppercase, lowercase, and number",
               },
             })}
           />
@@ -251,9 +278,10 @@ export const Profile = () => {
             label="Confirm New Password"
             type="password"
             error={passwordErrors.confirm_password?.message}
-            {...registerPassword('confirm_password', {
-              required: 'Please confirm your password',
-              validate: (value) => value === newPassword || 'Passwords do not match',
+            {...registerPassword("confirm_password", {
+              required: "Please confirm your password",
+              validate: (value) =>
+                value === newPassword || "Passwords do not match",
             })}
           />
 

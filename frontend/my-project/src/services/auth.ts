@@ -21,7 +21,7 @@ interface UserProfile {
   is_staff: boolean;
   reputation: number;
   total_uploads: number;
-  total_downloads: number;
+  download_count: number;
 }
 
 export const authService = {
@@ -49,7 +49,11 @@ export const authService = {
     return response.data;
   },
 
-  changePassword: async (data: { old_password: string; new_password: string }) => {
+  changePassword: async (data: { 
+    old_password: string; 
+    new_password: string; 
+    confirm_password: string;
+  }) => {
     const response = await api.post('/users/profile/change-password/', data);
     return response.data;
   },

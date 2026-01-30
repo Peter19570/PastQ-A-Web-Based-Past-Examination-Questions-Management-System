@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
 from django.db.models import Q, Count
 from django.shortcuts import get_object_or_404
+from django.db import transaction
 from django.http import FileResponse
 import os
 from .permissions import *
@@ -86,13 +87,28 @@ class PastQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
         return [IsAdminUser | IsModerator]
 
     def retrieve(self, request, *args, **kwargs):
-        """Increment view count on retrieve"""
+        """Increment view count and user download count on retrieve"""
         instance = self.get_object()
+        user = request.user
 
-        # Only increment for non-admin views
-        if not (request.user.is_admin or request.user.is_moderator):
-            instance.view_count += 1
-            instance.save(update_fields=["view_count"])
+        # Wrap in a transaction to ensure both counts update or neither does
+        with transaction.atomic():
+            # 1. Handle view count (existing logic)
+            if not (user.is_authenticated and (user.is_admin or user.is_moderator)):
+                instance.view_count += 1
+                # We'll save this later with the download count update
+
+            # 2. Handle download count for the user and the file
+            if user.is_authenticated and not (user.is_admin or user.is_moderator):
+                # Update the specific question's download stats
+                instance.download_count += 1
+
+                # Update the User's personal dashboard stats
+                user.download_count += 1
+                user.save(update_fields=["download_count"])
+
+            # Save question instance changes (view_count and download_count)
+            instance.save(update_fields=["view_count", "download_count"])
 
         serializer = self.get_serializer(instance)
         return Response(serializer.data)
@@ -100,7 +116,7 @@ class PastQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
 
 class PastQuestionDownloadView(APIView):
     """
-    Download a past question file
+    Download a past question file and increment user stats
     """
 
     permission_classes = [permissions.IsAuthenticated]
@@ -108,7 +124,7 @@ class PastQuestionDownloadView(APIView):
     def get(self, request, pk):
         past_question = get_object_or_404(PastQuestion, pk=pk)
 
-        # Check if user can download
+        # 1. Permission Check
         if past_question.status != "approved" and not (
             request.user.is_admin or request.user.is_moderator
         ):
@@ -117,28 +133,32 @@ class PastQuestionDownloadView(APIView):
                 status=status.HTTP_403_FORBIDDEN,
             )
 
-        # Increment download count
-        past_question.increment_download_count()
-
-        # Create download history record
-        DownloadHistory.objects.create(
-            user=request.user,
-            past_question=past_question,
-            ip_address=request.META.get("REMOTE_ADDR"),
-        )
-
-        # Return file
         file_path = past_question.file.path
-        if os.path.exists(file_path):
-            response = FileResponse(
-                open(file_path, "rb"), content_type="application/octet-stream"
+        if not os.path.exists(file_path):
+            return Response(
+                {"error": "File not found"}, status=status.HTTP_404_NOT_FOUND
             )
-            response["Content-Disposition"] = (
-                f'attachment; filename="{past_question.file_name}"'
-            )
-            return response
 
-        return Response({"error": "File not found"}, status=status.HTTP_404_NOT_FOUND)
+        with transaction.atomic():
+            past_question.increment_download_count()
+
+            user = request.user
+            user.download_count += 1
+            user.save(update_fields=["download_count"])
+
+            DownloadHistory.objects.create(
+                user=user,
+                past_question=past_question,
+                ip_address=request.META.get("REMOTE_ADDR"),
+            )
+
+        response = FileResponse(
+            open(file_path, "rb"), content_type="application/octet-stream"
+        )
+        response["Content-Disposition"] = (
+            f'attachment; filename="{past_question.file_name}"'
+        )
+        return response
 
 
 class PastQuestionSearchView(generics.ListAPIView):

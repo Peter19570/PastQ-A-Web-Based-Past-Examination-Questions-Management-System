@@ -74,6 +74,7 @@ class UserProfileSerializer(serializers.ModelSerializer):
             "reputation_score",
             "upload_count",
             "successful_uploads",
+            "download_count",
             "is_verified_uploader",
             "profile_picture",
             "date_joined",

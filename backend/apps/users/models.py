@@ -32,14 +32,13 @@ class User(AbstractUser):
     reputation_score = models.IntegerField(_("reputation score"), default=0)
     upload_count = models.IntegerField(_("upload count"), default=0)
     successful_uploads = models.IntegerField(_("successful uploads"), default=0)
+    download_count = models.IntegerField(_("download count"), default=0)
 
     # Profile
     profile_picture = models.ImageField(
         _("profile picture"), upload_to="profile_pics/", null=True, blank=True
     )
     phone_number = models.CharField(_("phone number"), max_length=15, blank=True)
-
-    # Settings
     email_notifications = models.BooleanField(_("email notifications"), default=True)
 
     USERNAME_FIELD = "index_number"
