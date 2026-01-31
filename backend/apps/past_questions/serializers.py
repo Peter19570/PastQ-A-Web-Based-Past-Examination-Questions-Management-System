@@ -17,7 +17,6 @@ class PastQuestionSerializer(serializers.ModelSerializer):
 
     uploaded_by = UserProfileSerializer(read_only=True)
 
-    # Computed fields
     semester_display = serializers.CharField(
         source="get_semester_display", read_only=True
     )

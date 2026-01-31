@@ -10,21 +10,17 @@ class Course(models.Model):
 
     # Faculty choices (can be expanded later)
     FACULTY_CHOICES = [
-        ("science", "Physical Sciences"),
-        ("engineering", "Engineering & Technology"),
-        ("medicine", "Health Sciences"),
-        ("arts", "Arts & Humanities"),
-        ("business", "Business & Law"),
-        ("agriculture", "Agriculture"),
-        ("education", "Education"),
-        ("social", "Social Sciences"),
+        ("computing", "Computing & Information Systems"),
+        ("engineering", "Engineering"),
+        ("business", "Business School"),
+        ("graduate", "Graduate School"),
     ]
 
     # Semester choices
     SEMESTER_CHOICES = [
         ("first", "First Semester"),
         ("second", "Second Semester"),
-        ("both", "Both Semesters"),
+        ("third", "Third Semester"),
     ]
 
     # Core fields

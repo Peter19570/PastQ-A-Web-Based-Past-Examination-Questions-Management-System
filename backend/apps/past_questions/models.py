@@ -21,8 +21,7 @@ class PastQuestion(models.Model):
     SEMESTER_CHOICES = [
         ("first", "First Semester"),
         ("second", "Second Semester"),
-        ("summer", "Summer Semester"),
-        ("unknown", "Unknown"),
+        ("third", "Third Semester"),
     ]
 
     # Exam type

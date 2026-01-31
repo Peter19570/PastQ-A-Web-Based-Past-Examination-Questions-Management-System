@@ -112,7 +112,7 @@ export const Upload = () => {
     try {
       await pastQuestionsService.upload({
         ...data,
-        file: file, // Injecting the file state into the data object
+        file: file, 
       });
 
       clearInterval(progressInterval);

@@ -18,7 +18,7 @@ export const AdminLayout = () => {
       path: "/admin",
     },
     {
-      title: "Manage Questions",
+      title: "Past Questions",
       path: "/admin/questions",
       icon: <FileText className="w-4 h-4" />,
     },

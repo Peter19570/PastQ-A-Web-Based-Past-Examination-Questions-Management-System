@@ -1,7 +1,7 @@
 export const SEMESTERS = [
 { value: 'first', label: 'First Semester' },
   { value: 'second', label: 'Second Semester' },
-  { value: 'summer', label: 'Summer Semester' },
+  { value: 'third', label: 'Third Semester' },
   { value: 'unknown', label: 'Unknown' },
 ];
 

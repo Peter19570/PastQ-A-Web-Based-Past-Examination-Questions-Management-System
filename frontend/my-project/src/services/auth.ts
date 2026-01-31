@@ -12,7 +12,6 @@ export interface LoginData {
   password: string;
 }
 
-
 interface UserProfile {
   id: number;
   email: string;

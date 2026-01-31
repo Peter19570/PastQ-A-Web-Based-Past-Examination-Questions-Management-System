@@ -1,5 +1,5 @@
-import { useState, useEffect, useMemo } from "react"; // Added useMemo
-import { Plus, Edit, Trash2, Search, X } from "lucide-react"; // Added Search, X
+import { useState, useEffect, useMemo } from "react";
+import { Plus, Edit, Trash2, Search, X } from "lucide-react";
 import { coursesService } from "../../services/courses";
 import { useToast } from "../../components/Common/Toast";
 import { Button } from "../../components/Common/Button";
@@ -18,7 +18,7 @@ export const AdminCourses = () => {
   const [formData, setFormData] = useState({
     code: "",
     title: "",
-    faculty: "science",
+    faculty: "engineering",
     department: "",
     level: "100",
     semester: "first",
@@ -285,14 +285,12 @@ export const AdminCourses = () => {
                   setFormData({ ...formData, faculty: e.target.value })
                 }
               >
-                <option value="science">Physical Sciences</option>
-                <option value="engineering">Engineering & Technology</option>
-                <option value="medicine">Health Sciences</option>
-                <option value="arts">Arts & Humanities</option>
-                <option value="business">Business & Law</option>
-                <option value="agriculture">Agriculture</option>
-                <option value="education">Education</option>
-                <option value="social">Social Sciences</option>
+                <option value="computing">
+                  Computing & Information Systems
+                </option>
+                <option value="engineering">Engineering</option>
+                <option value="business">Business School</option>
+                <option value="graduate">Graduate School</option>
               </select>
             </div>
             <div className="space-y-1">
@@ -322,10 +320,13 @@ export const AdminCourses = () => {
                   setFormData({ ...formData, level: e.target.value })
                 }
               >
-                <option value="100">100</option>
-                <option value="200">200</option>
-                <option value="300">300</option>
-                <option value="400">400</option>
+                <option value="100">100 (First Year)</option>
+                <option value="200">200 (Second Year)</option>
+                <option value="300">300 (Third Year)</option>
+                <option value="400">400 (Fourth Year)</option>
+                <option value="diploma">Diploma Level</option>
+                <option value="topup200">Top‑Up Entry (Level 200)</option>
+                <option value="topup300">Top‑Up Entry (Level 300)</option>
               </select>
             </div>
             <div className="space-y-1">

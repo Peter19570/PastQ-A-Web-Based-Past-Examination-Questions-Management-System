@@ -113,7 +113,7 @@ export const QuestionManagement = () => {
       <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
         <div>
           <h1 className="text-2xl font-black dark:text-white uppercase tracking-tighter">
-            Question Management
+            Past Question Management
           </h1>
           <p className="text-xs font-bold text-slate-400 uppercase tracking-widest mt-1">
             {filteredQuestions.length} Total Submissions

@@ -22,10 +22,8 @@ export const AdminDashboard = () => {
   const [totalQuestions, setTotalQuestions] = useState(0);
   const [loading, setLoading] = useState(true);
   const [actionLoading, setActionLoading] = useState(false);
-
   const [rejectId, setRejectId] = useState<number | null>(null);
   const [rejectionReason, setRejectionReason] = useState("");
-
   const { showToast } = useToast();
   const navigate = useNavigate();
 
@@ -56,8 +54,6 @@ export const AdminDashboard = () => {
         ? coursesData
         : coursesData.results;
 
-      // Meta counts from backend pagination
-      // const totalPendingCount = pendingData.count ?? pendingList?.length ?? 0;
       const totalCoursesCount = coursesData.count ?? coursesList?.length ?? 0;
       const totalQuestionsCount =
         allQuestionsData.count ??
@@ -68,7 +64,7 @@ export const AdminDashboard = () => {
 
       setPendingUploads(pendingList || []);
       setTotalCourses(totalCoursesCount);
-      setTotalQuestions(totalQuestionsCount); // Setting the new count
+      setTotalQuestions(totalQuestionsCount);
     } catch (error) {
       console.error("Failed to fetch dashboard data:", error);
       showToast("error", "Failed to refresh dashboard data");

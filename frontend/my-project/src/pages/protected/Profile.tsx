@@ -98,21 +98,21 @@ export const Profile = () => {
   const stats = [
     {
       title: "Uploads",
-      value: user?.total_uploads || 0,
+      value: user?.upload_count || 0,
       icon: UploadIcon,
       color: "text-primary-600 dark:text-primary-400",
       bgColor: "bg-primary-100 dark:bg-primary-900",
     },
     {
       title: "Downloads",
-      value: user?.total_downloads || 0,
+      value: user?.download_count || 0,
       icon: Download,
       color: "text-success-600 dark:text-success-400",
       bgColor: "bg-success-100 dark:bg-success-900",
     },
     {
       title: "Reputation",
-      value: user?.reputation || 0,
+      value: user?.reputation_score || 0,
       icon: Award,
       color: "text-accent-grape",
       bgColor: "bg-accent-banana/20",
