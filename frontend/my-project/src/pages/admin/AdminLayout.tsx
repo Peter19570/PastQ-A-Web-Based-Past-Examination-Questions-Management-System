@@ -3,6 +3,7 @@ import {
   LayoutDashboard,
   BookOpen,
   Users,
+  FileText,
   CheckCircle,
   ShieldCheck,
 } from "lucide-react";
@@ -15,6 +16,11 @@ export const AdminLayout = () => {
       title: "Overview",
       icon: <LayoutDashboard className="w-4 h-4" />,
       path: "/admin",
+    },
+    {
+      title: "Manage Questions",
+      path: "/admin/questions",
+      icon: <FileText className="w-4 h-4" />,
     },
     {
       title: "Courses",

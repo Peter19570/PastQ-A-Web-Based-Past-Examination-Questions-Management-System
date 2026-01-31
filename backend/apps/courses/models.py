@@ -77,6 +77,9 @@ class Course(models.Model):
         default=True,
         help_text=_("Is this course currently being offered?"),
     )
+    course_past_questions = models.IntegerField(
+        _("course's past questions"), null=True, default=0
+    )
 
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)

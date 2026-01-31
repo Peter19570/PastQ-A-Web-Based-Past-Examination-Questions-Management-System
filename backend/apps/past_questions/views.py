@@ -2,7 +2,7 @@ from rest_framework import generics, status, filters, permissions
 from rest_framework.response import Response
 from rest_framework.views import APIView
 from django_filters.rest_framework import DjangoFilterBackend
-from django.db.models import Q, Count
+from django.db.models import Q
 from django.shortcuts import get_object_or_404
 from django.db import transaction
 from django.http import FileResponse
@@ -14,8 +14,6 @@ from apps.users.models import User
 from .serializers import (
     PastQuestionSerializer,
     PastQuestionCreateSerializer,
-    PastQuestionUpdateSerializer,
-    DownloadHistorySerializer,
     PastQuestionSearchSerializer,
 )
 from apps.courses.models import Course
@@ -42,7 +40,7 @@ class PastQuestionListView(generics.ListCreateAPIView):
     def get_permissions(self):
         if self.request.method == "GET":
             return [permissions.AllowAny()]
-        return [permissions.IsAuthenticated()]
+        return [permission() for permission in [IsAdminUser | IsModerator]]
 
     def get_serializer_class(self):
         if self.request.method == "POST":
@@ -62,7 +60,6 @@ class PastQuestionListView(generics.ListCreateAPIView):
             )
         ):
             return queryset.all()
-
         return queryset.filter(status="approved")
 
     def perform_create(self, serializer):
@@ -84,30 +81,22 @@ class PastQuestionDetailView(generics.RetrieveUpdateDestroyAPIView):
     def get_permissions(self):
         if self.request.method == "GET":
             return [permissions.AllowAny()]
-        return [IsAdminUser | IsModerator]
+        return [permission() for permission in [IsAdminUser | IsModerator]]
 
     def retrieve(self, request, *args, **kwargs):
         """Increment view count and user download count on retrieve"""
         instance = self.get_object()
         user = request.user
 
-        # Wrap in a transaction to ensure both counts update or neither does
         with transaction.atomic():
-            # 1. Handle view count (existing logic)
             if not (user.is_authenticated and (user.is_admin or user.is_moderator)):
                 instance.view_count += 1
-                # We'll save this later with the download count update
 
-            # 2. Handle download count for the user and the file
             if user.is_authenticated and not (user.is_admin or user.is_moderator):
-                # Update the specific question's download stats
                 instance.download_count += 1
-
-                # Update the User's personal dashboard stats
                 user.download_count += 1
                 user.save(update_fields=["download_count"])
 
-            # Save question instance changes (view_count and download_count)
             instance.save(update_fields=["view_count", "download_count"])
 
         serializer = self.get_serializer(instance)
@@ -124,7 +113,6 @@ class PastQuestionDownloadView(APIView):
     def get(self, request, pk):
         past_question = get_object_or_404(PastQuestion, pk=pk)
 
-        # 1. Permission Check
         if past_question.status != "approved" and not (
             request.user.is_admin or request.user.is_moderator
         ):

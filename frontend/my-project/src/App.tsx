@@ -29,6 +29,7 @@ import { AdminLayout } from "./pages/admin/AdminLayout";
 import { AdminCourses } from "./pages/admin/AdminCourses";
 import { AdminModeration } from "./pages/admin/AdminModeration";
 import { AdminUsers } from "./pages/admin/AdminUsers";
+import { QuestionManagement } from "./pages/admin/QuestionManagement";
 
 function App() {
   return (
@@ -69,6 +70,7 @@ function App() {
                   <Route path="courses" element={<AdminCourses />} />
                   <Route path="users" element={<AdminUsers />} />
                   <Route path="moderation" element={<AdminModeration />} />
+                  <Route path="questions" element={<QuestionManagement />} />
                 </Route>
               </Route>
             </Routes>

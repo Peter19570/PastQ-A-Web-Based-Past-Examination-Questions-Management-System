@@ -132,4 +132,8 @@ export const pastQuestionsService = {
     });
     return response.data;
   },
-};
+  partialUpdate: async (id: number, data: any) => {
+      const response = await api.patch(`/past-questions/${id}/`, data);
+      return response.data;
+    },
+  }

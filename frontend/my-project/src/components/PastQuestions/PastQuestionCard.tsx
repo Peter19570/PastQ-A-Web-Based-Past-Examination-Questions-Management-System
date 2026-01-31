@@ -26,14 +26,22 @@ export const PastQuestionCard = ({
     pastQuestion.download_count || 0,
   );
 
+  const handleViewClick = () => {
+    if (!isAuthenticated) {
+      navigate("/login", {
+        state: { from: `/past-questions/${pastQuestion.id}` },
+      });
+    } else {
+      navigate(`/past-questions/${pastQuestion.id}`);
+    }
+  };
+
   const handleDownload = async (e: React.MouseEvent) => {
     e.preventDefault();
     e.stopPropagation();
 
-    // 1. CHECK AUTH FIRST: If not logged in, stop here and redirect
     if (!isAuthenticated) {
       toast.error("Please login to download files");
-      // This sends them to login and remembers where they were
       navigate("/login", { state: { from: location.pathname } });
       return;
     }
@@ -42,7 +50,6 @@ export const PastQuestionCard = ({
       toast.loading("Preparing download...", { id: "card-dl" });
 
       const blob = await pastQuestionsService.downloadFile(pastQuestion.id);
-
       const url = window.URL.createObjectURL(new Blob([blob]));
       const link = document.createElement("a");
       link.href = url;
@@ -153,13 +160,13 @@ export const PastQuestionCard = ({
 
         {showActions && (
           <div className="flex gap-2 pt-4 border-t border-gray-200 dark:border-gray-700">
-            <Link
-              to={`/past-questions/${pastQuestion.id}`}
+            <button
+              onClick={handleViewClick}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300 rounded-lg hover:bg-gray-200 dark:hover:bg-gray-600 transition-colors"
             >
               <Eye className="h-4 w-4" />
               View
-            </Link>
+            </button>
             <button
               onClick={handleDownload}
               className="flex-1 flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors shadow-sm active:scale-95"
